@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: otel-collector
+  namespace: demo
 spec:
   replicas: 1
   selector:
@@ -24,12 +25,16 @@ spec:
         - name: config-volume
           configMap:
             name: otel-collector-configmap
+            items:
+              - key: otel-collector-config.yaml
+                path: otel-collector-config.yaml
 
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: otel-collector-configmap
+  namespace: demo
 data:
   otel-collector-config.yaml: |
     receivers:
