@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fluentbit
+  namespace: demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fluentbit
+  template:
+    metadata:
+      labels:
+        app: fluentbit
+    spec:
+      containers:
+      - name: fluentbit
+        image: fluent/fluent-bit:latest
+        volumeMounts:
+        - name: fluentbit-config
+          mountPath: /fluent-bit/etc/fluent-bit.conf
+        - name: docker-config
+          mountPath: /fluent-bit/bin/docker-metadata.lua
+        - name: var-lib-docker
+          mountPath: /var/lib/docker
+        - name: var
+          mountPath: /var
+        - name: proc
+          mountPath: /host/proc
+        - name: sys
+          mountPath: /host/sys
+      volumes:
+      - name: fluentbit-config
+        configMap:
+          name: fluentbit-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fluentbit-config
+  namespace: demo
+data:
+  fluent-bit.conf: |
+    [SERVICE]
+        flush 1
+        log_level error
+    
+    [INPUT]
+        Name   tail
+        Path   /var/lib/docker/containers/*/*.log
+        Parser docker
+        Refresh_Interval 30
+        Ignore_Older 6h
+        Docker_Mode  On
+        Tag source.docker.<container_id>
+        Tag_Regex (.*\/(?<container_id>.*)-json\.log)
+    
+    [FILTER]
+        Name   lua
+        Match  source.docker.*
+        script /fluent-bit/bin/docker-metadata.lua
+        call   encrich_with_docker_metadata
+    
+    [OUTPUT]
+        Name                 opentelemetry
+        Match                source.docker.*
+        Host                 collector
+        Port                 3030
+        metrics_uri          /v1/metrics
+        logs_uri             /v1/logs
+        traces_uri           /v1/traces
+        Log_response_payload True
+        tls                  off
+        tls.verify           off
+        # add user-defined labels
+        add_label            app fluent-bit
+        add_label            color blue
