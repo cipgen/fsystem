@@ -1,31 +1,15 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+kind: PersistentVolumeClaim
 metadata:
-  name: loki
+  name: loki-pvc
   namespace: demo
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: loki
-  template:
-    metadata:
-      labels:
-        app: loki
-    spec:
-      containers:
-        - name: loki
-          image: grafana/loki:2.8.2
-          args:
-            - "-config.file=/etc/loki/loki-config.yaml"
-          volumeMounts:
-            - name: config-volume
-              mountPath: /etc/loki
-      volumes:
-        - name: config-volume
-          configMap:
-            name: loki-config
-
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: standard
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -76,7 +60,34 @@ data:
     table_manager:
       retention_deletes_enabled: false
       retention_period: 0s
-
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loki
+  namespace: demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loki
+  template:
+    metadata:
+      labels:
+        app: loki
+    spec:
+      containers:
+        - name: loki
+          image: grafana/loki:2.8.2
+          args:
+            - "-config.file=/etc/loki/loki-config.yaml"
+          volumeMounts:
+            - name: loki-storage
+              mountPath: /loki
+      volumes:
+        - name: loki-storage
+          persistentVolumeClaim:
+            claimName: loki-pvc
 ---
 apiVersion: v1
 kind: Service
