@@ -82,12 +82,13 @@ spec:
           args:
             - "-config.file=/etc/loki/loki-config.yaml"
           volumeMounts:
-            - name: loki-storage
-              mountPath: /loki
+            - name: config-volume
+              mountPath: /etc/loki
+              readOnly: true
       volumes:
-        - name: loki-storage
-          persistentVolumeClaim:
-            claimName: loki-pvc
+        - name: config-volume
+          configMap:
+            name: loki-config
 ---
 apiVersion: v1
 kind: Service
