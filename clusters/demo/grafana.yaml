@@ -5,8 +5,10 @@ metadata:
   namespace: demo
 data:
   grafana.ini: |
+    [http_server]
     allow_cors = true
     access_control_allow_origin = '*'
+kind: ConfigMap
 ---
 
 apiVersion: apps/v1
