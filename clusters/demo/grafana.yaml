@@ -1,4 +1,14 @@
-# Deployment для Grafana
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-config
+  namespace: demo
+data:
+  grafana.ini: |
+    allow_cors = true
+    access_control_allow_origin = '*'
+---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -19,10 +29,22 @@ spec:
         image: grafana/grafana:9.4.3
         ports:
         - containerPort: 3000
+        env:
+        - name: GF_SECURITY_ADMIN_USER
+          value: "admin"
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          value: "admin"
+        volumeMounts:
+        - name: grafana-config
+          mountPath: /etc/grafana/grafana.ini
+          subPath: grafana.ini
+      volumes:
+      - name: grafana-config
+        configMap:
+          name: grafana-config
 
 ---
 
-# Service для Grafana
 apiVersion: v1
 kind: Service
 metadata:
@@ -35,4 +57,3 @@ spec:
     - protocol: TCP
       port: 3000
       targetPort: 3000
-
