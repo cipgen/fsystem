@@ -16,7 +16,9 @@ Grafana
 
 ____
 
-- Розгорнуто K8S
+Terraform
+    - Розгорнуто K8S
+
 - Розгорнуто Flux
     - OpenTelemetry
     - Prometheus
