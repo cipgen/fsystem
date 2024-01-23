@@ -1,0 +1,38 @@
+# Deployment для Grafana
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - name: grafana
+        image: grafana/grafana:9.4.3
+        ports:
+        - containerPort: 3000
+
+---
+
+# Service для Grafana
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: demo
+spec:
+  selector:
+    app: grafana
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+
