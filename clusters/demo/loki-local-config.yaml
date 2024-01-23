@@ -51,8 +51,6 @@ data:
         shared_store: filesystem
       filesystem:
         directory: /loki/chunks
-      wal:
-        dir: /loki/wal  # указание пути для WAL
     limits_config:
       enforce_metric_name: false
       reject_old_samples: true
