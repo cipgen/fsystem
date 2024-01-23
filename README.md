@@ -35,4 +35,8 @@ otel-collector-5f98d654c5-vp2bz           1/1     Running   0          17h
 otel-collector-sidecar-57d477fb55-nvd5n   1/1     Running   0          3h13m
 prometheus-754854b68-shkvc                1/1     Running   0          17h
 
-Далі не встиг
+Далі не встиг...
+
+**Error grafana datasource origin not allowed**
+
+![error](./img/grafana.png)
