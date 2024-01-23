@@ -51,6 +51,8 @@ data:
         shared_store: filesystem
       filesystem:
         directory: /loki/chunks
+      wal:
+        dir: /loki/wal  # указание пути для WAL
     limits_config:
       enforce_metric_name: false
       reject_old_samples: true
@@ -85,10 +87,15 @@ spec:
             - name: config-volume
               mountPath: /etc/loki
               readOnly: true
+            - name: loki-storage
+              mountPath: /loki
       volumes:
         - name: config-volume
           configMap:
             name: loki-config
+        - name: loki-storage
+          persistentVolumeClaim:
+            claimName: loki-pvc
 ---
 apiVersion: v1
 kind: Service
