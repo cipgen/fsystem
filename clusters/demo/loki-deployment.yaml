@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: loki
+  namespace: demo  # Указываем namespace
 spec:
   replicas: 1
   selector:
@@ -27,11 +28,15 @@ spec:
       - name: loki-config
         configMap:
           name: loki-config
+          items:
+            - key: local-config.yaml
+              path: local-config.yaml
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: loki-config
+  namespace: demo  # Указываем namespace
 data:
   local-config.yaml: |
     auth_enabled: false
