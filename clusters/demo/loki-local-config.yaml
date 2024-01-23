@@ -21,80 +21,7 @@ data:
     auth_enabled: false
     server:
       http_listen_port: 3100
-    distributor:
-      ring:
-        kvstore:
-          store: inmemory
     ingester:
-      lifecycler:
-        address: 127.0.0.1
-        ring:
-          kvstore:
-            store: inmemory
-          replication_factor: 1
-      chunk_idle_period: 3m
-      chunk_retain_period: 1m
-    schema_config:
-      configs:
-        - from: 2020-10-24
-          store: boltdb-shipper
-          object_store: filesystem
-          schema: v11
-          index:
-            prefix: index_
-            period: 24h
-    storage_config:
-      boltdb_shipper:
-        active_index_directory: /loki/index
-        cache_location: /loki/cache
-        cache_ttl: 24h
-        shared_store: filesystem
-      filesystem:
-        directory: /loki/chunks
-    limits_config:
-      enforce_metric_name: false
-      reject_old_samples: true
-      reject_old_samples_max_age: 168h
-    chunk_store_config:
-      max_look_back_period: 336h
-    table_manager:
-      retention_deletes_enabled: false
-      retention_period: 0s
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: loki-pvc
-  namespace: demo
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 10Gi
-  storageClassName: standard
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: loki-config
-  namespace: demo
-data:
-  loki-config.yaml: |
-    auth_enabled: false
-    server:
-      http_listen_port: 3100
-    distributor:
-      ring:
-        kvstore:
-          store: inmemory
-    ingester:
-      lifecycler:
-        address: 127.0.0.1
-        ring:
-          kvstore:
-            store: inmemory
-          replication_factor: 1
       chunk_idle_period: 3m
       chunk_retain_period: 1m
     schema_config:
@@ -139,8 +66,6 @@ spec:
       labels:
         app: loki
     spec:
-      securityContext:
-        runAsUser: 0
       containers:
         - name: loki
           image: grafana/loki:2.8.2
@@ -149,7 +74,6 @@ spec:
           volumeMounts:
             - name: config-volume
               mountPath: /etc/loki
-              readOnly: true
             - name: loki-storage
               mountPath: /loki
       volumes:
