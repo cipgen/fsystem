@@ -12,7 +12,6 @@ spec:
       labels:
         k8s-app: fluent-bit
 
-
 ---
 
 apiVersion: v1
